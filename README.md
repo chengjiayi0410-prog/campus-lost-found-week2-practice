@@ -45,7 +45,7 @@
 ```text
 用户名：admin
 密码：admin123
-
+```
 ## 后端开发
 
 ```bash
@@ -53,3 +53,4 @@ cd server
 npm install
 cp .env.example .env
 npm run dev
+```
