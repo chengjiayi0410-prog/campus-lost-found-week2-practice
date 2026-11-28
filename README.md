@@ -2,7 +2,7 @@
 
 一个面向校园的失物与招领信息平台。用户可以搜索物品、按类型和分类筛选、查看详情、注册登录、发布信息，管理员可以删除违规内容。
 
-当前进度：**第 2 周 Vue 3 前端原型**。
+当前进度：**第 3 周 Express、MySQL 与 JWT 认证 API**。
 
 ## 已实现功能
 
@@ -45,3 +45,11 @@
 ```text
 用户名：admin
 密码：admin123
+
+## 后端开发
+
+```bash
+cd server
+npm install
+cp .env.example .env
+npm run dev

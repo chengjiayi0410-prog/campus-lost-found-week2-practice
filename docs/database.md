@@ -1,6 +1,6 @@
 # 数据库设计草稿
 
-> 当前阶段：第 2 周前端原型。  
+> 当前阶段：第 3 周，用户表与认证接口已经落地。
 > 本文件只设计数据结构，数据库连接和真实 SQL 操作将在第 3～4 周实现。
 
 ## 实体关系
@@ -61,11 +61,12 @@ erDiagram
 | 字段 | 类型 | 约束 | 用途 |
 | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | 主键、自增 | 用户 ID |
-| username | VARCHAR(50) | 唯一、非空 | 登录用户名 |
-| password_hash | VARCHAR(255) | 非空 | bcrypt 密码哈希 |
+| username | VARCHAR(30) | 唯一、非空 | 登录用户名 |
+| password_hash | VARCHAR(100) | 非空 | bcrypt 密码哈希 |
 | nickname | VARCHAR(50) | 非空 | 页面显示名称 |
 | role | ENUM('user', 'admin') | 默认 user | 用户角色 |
-| created_at | DATETIME | 默认当前时间 | 注册时间 |
+| created_at | TIMESTAMP | 默认当前时间 | 注册时间 |
+| updated_at | TIMESTAMP | 自动更新时间 | 最后修改时间 |
 
 密码绝对不能以明文保存。第 3 周使用 bcrypt 后，`password_hash` 保存哈希值，不保存用户输入的密码。
 
@@ -184,3 +185,20 @@ CREATE TABLE images (
 3. `password_hash` 替代明文密码，为第 3 周 bcrypt 做准备。
 4. 管理员删除信息时，优先把 `status` 改为 `removed`，保留必要的数据记录；当前前端模拟阶段可以直接删除数组项。
 5. 列表常用筛选条件预留组合索引，关键词搜索仍需在第 4 周根据数据量决定 `LIKE` 或全文索引。
+
+## 第 3 周已实现接口
+
+| 方法 | 地址 | 权限 | 用途 |
+| --- | --- | --- | --- |
+| POST | `/api/auth/register` | 公开 | 注册普通用户 |
+| POST | `/api/auth/login` | 公开 | 校验密码并签发 JWT |
+| GET | `/api/auth/me` | 需要 Bearer Token | 获取当前用户 |
+
+安全措施：
+
+- 密码使用 bcrypt 算法哈希后保存。
+- JWT 默认有效期为 2 小时。
+- JWT 令牌包含用户 ID、用户名和角色，不包含密码。
+- `/api/auth/me` 会校验令牌并重新查询用户。
+- 登录失败统一返回“用户名或密码错误”。
+- 数据库密码与 JWT 密钥只保存在 `.env`，不提交到 Git。
