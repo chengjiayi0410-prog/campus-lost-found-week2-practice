@@ -2,7 +2,7 @@
 
 一个面向校园的失物与招领信息平台。用户可以搜索物品、按类型和分类筛选、查看详情、注册登录、发布信息，管理员可以删除违规内容。
 
-当前进度：**第 5 周前后端联调，MVP 主流程已完成**。
+当前进度：**第 6 周自动化测试，核心 API 已覆盖**。
 
 ## 已实现功能
 
@@ -35,6 +35,8 @@
 - JWT
 - bcrypt
 - Multer
+- Vitest
+- Supertest
 
 ## 页面
 
@@ -79,3 +81,24 @@ npm run dev
 - `GET /api/health/db`
 
 接口文档：[docs/api.md](docs/api.md)
+
+## 自动化测试
+
+测试使用独立数据库 `campus_lost_found_test`，不会修改开发数据库。
+
+```bash
+cd server
+npm test
+npm run test:coverage
+```
+
+当前测试覆盖：
+
+- 注册、登录和 JWT 当前用户接口
+- 重复注册、错误密码和未授权访问
+- 信息发布、筛选、分页和详情
+- 修改与删除权限
+- 管理员软删除
+- 图片上传、类型限制和数量限制
+
+测试说明：[docs/testing.md](docs/testing.md)

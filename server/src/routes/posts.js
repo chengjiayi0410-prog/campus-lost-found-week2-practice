@@ -6,6 +6,9 @@ import { uploadDirectory } from "../config/uploads.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { Router } from "express";
 import { pool } from "../config/db.js";
+import {
+  parsePositiveInteger
+} from "../utils/pagination.js";
 
 const router = Router();
 
@@ -165,24 +168,6 @@ async function attachImages(posts) {
       });
     }
   }
-}
-
-function parsePositiveInteger(value, fallback) {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  if (typeof value !== "string" || !value.trim()) {
-    return null;
-  }
-
-  const parsed = Number(value);
-
-  if (!Number.isInteger(parsed) || parsed < 1) {
-    return null;
-  }
-
-  return parsed;
 }
 
 async function findPostForMutation(id) {
