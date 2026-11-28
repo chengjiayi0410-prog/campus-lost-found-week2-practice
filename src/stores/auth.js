@@ -1,79 +1,80 @@
 import { computed, reactive } from "vue";
+import {
+  apiRequest,
+  clearToken,
+  getToken,
+  setToken
+} from "../api/client.js";
 
 const state = reactive({
-  users: [
-    {
-      username: "admin",
-      password: "admin123",
-      nickname: "管理员",
-      role: "admin"
-    }
-  ],
-  currentUser: null
+  currentUser: null,
+  initialized: false
 });
 
 const currentUser = computed(() => state.currentUser);
 const isLoggedIn = computed(() => Boolean(state.currentUser));
-const isAdmin = computed(() => state.currentUser?.role === "admin");
+const isAdmin = computed(
+  () => state.currentUser?.role === "admin"
+);
+const initialized = computed(() => state.initialized);
 
-function normalizeUsername(username) {
-  return username.trim().toLowerCase();
+async function register({
+  username,
+  password,
+  nickname
+}) {
+  await apiRequest("/auth/register", {
+    method: "POST",
+    body: {
+      username,
+      password,
+      nickname
+    }
+  });
+
+  return login({ username, password });
 }
 
-function toPublicUser(user) {
-  const { password, ...publicUser } = user;
-  return publicUser;
+async function login({ username, password }) {
+  const data = await apiRequest("/auth/login", {
+    method: "POST",
+    body: {
+      username,
+      password
+    }
+  });
+
+  setToken(data.token);
+  state.currentUser = data.user;
+
+  return data.user;
 }
 
-function register({ username, password, nickname }) {
-  const name = username.trim();
-
-  if (name.length < 2) {
-    return { ok: false, message: "用户名至少需要 2 个字符" };
+async function restoreSession() {
+  if (state.initialized) {
+    return;
   }
 
-  if (password.length < 6) {
-    return { ok: false, message: "密码至少需要 6 个字符" };
+  if (!getToken()) {
+    state.initialized = true;
+    return;
   }
 
-  const exists = state.users.some(
-    (user) =>
-      normalizeUsername(user.username) === normalizeUsername(name)
-  );
-
-  if (exists) {
-    return { ok: false, message: "该用户名已被注册" };
+  try {
+    const data = await apiRequest("/auth/me");
+    state.currentUser = data.user;
+  } catch (error) {
+    if (error.status === 401) {
+      clearToken();
+      state.currentUser = null;
+    }
+  } finally {
+    state.initialized = true;
   }
-
-  const user = {
-    username: name,
-    password,
-    nickname: (nickname || "").trim() || name,
-    role: "user"
-  };
-
-  state.users.push(user);
-  state.currentUser = toPublicUser(user);
-
-  return { ok: true };
-}
-
-function login({ username, password }) {
-  const user = state.users.find(
-    (entry) =>
-      normalizeUsername(entry.username) ===
-      normalizeUsername(username)
-  );
-
-  if (!user || user.password !== password) {
-    return { ok: false, message: "用户名或密码错误" };
-  }
-
-  state.currentUser = toPublicUser(user);
-  return { ok: true };
 }
 
 function logout() {
+  clearToken();
   state.currentUser = null;
 }
 
@@ -82,8 +83,10 @@ export function useAuthStore() {
     currentUser,
     isLoggedIn,
     isAdmin,
+    initialized,
     register,
     login,
+    restoreSession,
     logout
   };
 }

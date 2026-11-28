@@ -11,8 +11,9 @@ const username = ref("");
 const password = ref("");
 const confirmPassword = ref("");
 const errorMessage = ref("");
+const submitting = ref(false);
 
-function submitForm() {
+async function submitForm() {
   errorMessage.value = "";
 
   if (password.value !== confirmPassword.value) {
@@ -20,18 +21,21 @@ function submitForm() {
     return;
   }
 
-  const result = register({
-    nickname: nickname.value,
-    username: username.value,
-    password: password.value
-  });
+  submitting.value = true;
 
-  if (!result.ok) {
-    errorMessage.value = result.message;
-    return;
+  try {
+    await register({
+      nickname: nickname.value,
+      username: username.value,
+      password: password.value
+    });
+
+    await router.push({ name: "home" });
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    submitting.value = false;
   }
-
-  router.push({ name: "home" });
 }
 </script>
 
@@ -49,6 +53,7 @@ function submitForm() {
           <input
             v-model.trim="nickname"
             type="text"
+            maxlength="50"
             autocomplete="nickname"
           >
         </label>
@@ -58,6 +63,8 @@ function submitForm() {
           <input
             v-model.trim="username"
             type="text"
+            minlength="3"
+            maxlength="30"
             autocomplete="username"
             required
           >
@@ -68,6 +75,7 @@ function submitForm() {
           <input
             v-model="password"
             type="password"
+            minlength="8"
             autocomplete="new-password"
             required
           >
@@ -78,6 +86,7 @@ function submitForm() {
           <input
             v-model="confirmPassword"
             type="password"
+            minlength="8"
             autocomplete="new-password"
             required
           >
@@ -87,9 +96,13 @@ function submitForm() {
           {{ errorMessage }}
         </p>
 
-        <button class="btn btn-primary" type="submit">
-          注册
-        </button>
+        <button
+  class="btn btn-primary"
+  type="submit"
+  :disabled="submitting"
+>
+  {{ submitting ? "注册中..." : "注册" }}
+</button>
       </form>
 
       <p class="auth-switch">

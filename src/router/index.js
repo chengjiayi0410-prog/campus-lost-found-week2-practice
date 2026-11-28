@@ -61,8 +61,17 @@ const router = createRouter({
   }
 });
 
-router.beforeEach((to) => {
-  const { isLoggedIn, isAdmin } = useAuthStore();
+router.beforeEach(async (to) => {
+  const {
+    isLoggedIn,
+    isAdmin,
+    initialized,
+    restoreSession
+  } = useAuthStore();
+
+  if (!initialized.value) {
+    await restoreSession();
+  }
 
   if (to.meta.guestOnly && isLoggedIn.value) {
     return { name: "home" };

@@ -1,11 +1,8 @@
 <script setup>
-import { computed } from "vue";
+import { onMounted, watch } from "vue";
 import { RouterLink } from "vue-router";
-import {
-  categoryIcons,
-  categoryLabels,
-  typeLabels
-} from "../data/seedItems";
+import { getApiAssetUrl } from "../api/client";
+import { typeLabels } from "../data/seedItems";
 import { useItemStore } from "../stores/items";
 
 const props = defineProps({
@@ -15,9 +12,33 @@ const props = defineProps({
   }
 });
 
-const { getById } = useItemStore();
+const {
+  currentItem,
+  itemLoading,
+  itemError,
+  fetchItemById
+} = useItemStore();
 
-const item = computed(() => getById(props.id));
+async function loadItem() {
+  try {
+    await fetchItemById(props.id);
+  } catch (error) {
+    // 错误消息已经保存在 store 中
+  }
+}
+
+function formatDate(value) {
+  return new Date(value).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+onMounted(loadItem);
+watch(() => props.id, loadItem);
 </script>
 
 <template>
@@ -26,56 +47,67 @@ const item = computed(() => getById(props.id));
       ← 返回列表
     </RouterLink>
 
-    <template v-if="item">
+    <div v-if="itemLoading" class="empty-state">
+      <p>正在加载详情...</p>
+    </div>
+
+    <div v-else-if="itemError" class="empty-state">
+      <p>{{ itemError }}</p>
+      <RouterLink class="btn btn-primary" :to="{ name: 'home' }">
+        返回列表
+      </RouterLink>
+    </div>
+
+    <template v-else-if="currentItem">
       <header class="detail-head">
         <span class="detail-icon" aria-hidden="true">
-          {{ categoryIcons[item.category] }}
+          {{ currentItem.category.icon }}
         </span>
 
         <div class="detail-heading">
           <div class="detail-title-row">
-            <h1>{{ item.title }}</h1>
+            <h1>{{ currentItem.title }}</h1>
             <span
               class="badge"
               :class="
-                item.type === 'lost'
+                currentItem.type === 'lost'
                   ? 'badge-lost'
                   : 'badge-found'
               "
             >
-              {{ typeLabels[item.type] }}
+              {{ typeLabels[currentItem.type] }}
             </span>
           </div>
 
           <p class="detail-meta">
-            {{ item.location }} · {{ item.date }}
+            {{ currentItem.location }}
+            · {{ formatDate(currentItem.createdAt) }}
           </p>
         </div>
       </header>
 
       <section class="detail-content">
         <p class="detail-category">
-          <img
-            v-if="item.image"
-            class="detail-image"
-            :src="item.image"
-            alt="物品图片">
-          {{ categoryLabels[item.category] }}
+          {{ currentItem.category.name }}
         </p>
+
+        <img
+          v-if="currentItem.images.length"
+          class="detail-image"
+          :src="getApiAssetUrl(currentItem.images[0].url)"
+          :alt="currentItem.title"
+        >
+
         <p class="detail-desc">
-          {{ item.description }}
+          {{ currentItem.description }}
         </p>
-        <p v-if="item.author" class="detail-author">
-  发布者：{{ item.author }}
-</p>
+
+        <p class="detail-author">
+          发布者：
+          {{ currentItem.author.nickname }}
+          （{{ currentItem.author.username }}）
+        </p>
       </section>
     </template>
-
-    <div v-else class="empty-state">
-      <p>这条信息不存在</p>
-      <RouterLink class="btn btn-primary" :to="{ name: 'home' }">
-        返回列表
-      </RouterLink>
-    </div>
   </main>
 </template>

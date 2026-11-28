@@ -1,55 +1,168 @@
 import { computed, reactive } from "vue";
-import { seedItems } from "../data/seedItems";
+import { apiRequest } from "../api/client.js";
 
 const state = reactive({
-  items: seedItems.map((item) => ({ ...item }))
-  //seedItems.map((item) => ({ ...item })) 创建副本，避免直接修改初始数据
+  items: [],
+  currentItem: null,
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0
+  },
+  listLoading: false,
+  itemLoading: false,
+  listError: "",
+  itemError: ""
 });
-//reactive() 让数组成为响应式数据，新增或删除后页面会自动更新
+
 const items = computed(() => state.items);
-// computed() 根据当前数据生成可供页面读取的列表
-function getById(id) {
-    //getById() 为后面的详情页查询单条信息
-  return state.items.find((item) => String(item.id) === String(id));
+const currentItem = computed(() => state.currentItem);
+const pagination = computed(() => state.pagination);
+const listLoading = computed(() => state.listLoading);
+const itemLoading = computed(() => state.itemLoading);
+const listError = computed(() => state.listError);
+const itemError = computed(() => state.itemError);
+
+async function fetchItems({
+  page = 1,
+  pageSize = 10,
+  keyword = "",
+  type = "",
+  category = ""
+} = {}) {
+  state.listLoading = true;
+  state.listError = "";
+
+  const query = new URLSearchParams({
+    page: String(page),
+    pageSize: String(pageSize)
+  });
+
+  if (keyword.trim()) {
+    query.set("keyword", keyword.trim());
+  }
+
+  if (type && type !== "all") {
+    query.set("type", type);
+  }
+
+  if (category && category !== "all") {
+    query.set("category", category);
+  }
+
+  try {
+    const data = await apiRequest(
+      `/posts?${query.toString()}`
+    );
+
+    state.items = data.data;
+    state.pagination = data.pagination;
+
+    return data;
+  } catch (error) {
+    state.items = [];
+    state.listError = error.message;
+    throw error;
+  } finally {
+    state.listLoading = false;
+  }
 }
-function formatDate() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
 
-  return `${now.getMonth() + 1}月${now.getDate()}日 ${hours}:${minutes}`;
+async function fetchItemById(id) {
+  state.itemLoading = true;
+  state.itemError = "";
+  state.currentItem = null;
+
+  try {
+    const data = await apiRequest(`/posts/${id}`);
+    state.currentItem = data.data;
+
+    return data.data;
+  } catch (error) {
+    state.itemError = error.message;
+    throw error;
+  } finally {
+    state.itemLoading = false;
+  }
 }
 
-function addItem(payload) {
-    //addItem() 和 removeItem() 为发布、删除功能做准备
-  const nextId =
-    Math.max(0, ...state.items.map((item) => Number(item.id))) + 1;
+async function addItem(payload) {
+  const data = await apiRequest("/posts", {
+    method: "POST",
+    body: payload
+  });
 
-  state.items.unshift({
-  id: nextId,
-  ...payload,
-  date: formatDate()
-});
-
-  return nextId;
+  return data.data;
 }
 
-function removeItem(id) {
-    //addItem() 和 removeItem() 为发布、删除功能做准备
+async function updateItem(id, payload) {
+  const data = await apiRequest(`/posts/${id}`, {
+    method: "PUT",
+    body: payload
+  });
+
   const index = state.items.findIndex(
     (item) => String(item.id) === String(id)
   );
 
   if (index >= 0) {
-    state.items.splice(index, 1);
+    state.items[index] = data.data;
   }
+
+  if (
+    state.currentItem &&
+    String(state.currentItem.id) === String(id)
+  ) {
+    state.currentItem = data.data;
+  }
+
+  return data.data;
+}
+
+async function removeItem(id) {
+  await apiRequest(`/posts/${id}`, {
+    method: "DELETE"
+  });
+
+  state.items = state.items.filter(
+    (item) => String(item.id) !== String(id)
+  );
+
+  if (state.pagination.total > 0) {
+    state.pagination = {
+      ...state.pagination,
+      total: state.pagination.total - 1
+    };
+  }
+}
+
+async function uploadItemImage(id, file) {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const data = await apiRequest(`/posts/${id}/images`, {
+    method: "POST",
+    body: formData
+  });
+
+  return data.data;
 }
 
 export function useItemStore() {
   return {
     items,
-    getById,
+    currentItem,
+    pagination,
+    listLoading,
+    itemLoading,
+    listError,
+    itemError,
+    fetchItems,
+    fetchItemById,
     addItem,
-    removeItem
+    updateItem,
+    removeItem,
+    uploadItemImage
   };
 }

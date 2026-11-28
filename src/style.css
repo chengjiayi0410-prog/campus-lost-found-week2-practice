@@ -795,3 +795,16 @@ dialog p {
     gap: 12px;
   }
 }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.pagination span {
+  color: var(--muted);
+  font-size: 13px;
+}

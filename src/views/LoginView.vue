@@ -14,26 +14,29 @@ const { login } = useAuthStore();
 const username = ref("");
 const password = ref("");
 const errorMessage = ref("");
+const submitting = ref(false);
 
-function submitForm() {
+async function submitForm() {
   errorMessage.value = "";
+  submitting.value = true;
 
-  const result = login({
-    username: username.value,
-    password: password.value
-  });
+  try {
+    await login({
+      username: username.value,
+      password: password.value
+    });
 
-  if (!result.ok) {
-    errorMessage.value = result.message;
-    return;
+    const redirect =
+      typeof route.query.redirect === "string"
+        ? route.query.redirect
+        : null;
+
+    await router.push(redirect || { name: "home" });
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    submitting.value = false;
   }
-
-  const redirect =
-    typeof route.query.redirect === "string"
-      ? route.query.redirect
-      : null;
-
-  router.push(redirect || { name: "home" });
 }
 </script>
 
@@ -42,7 +45,9 @@ function submitForm() {
     <section class="auth-card">
       <h1>登录</h1>
       <p class="form-hint">
-        演示管理员账号：admin，密码：admin123
+        测试普通用户：student1 / TestPass123!
+        <br>
+        测试管理员：admin / AdminPass123!
       </p>
 
       <form class="form-stack" @submit.prevent="submitForm">
@@ -70,9 +75,13 @@ function submitForm() {
           {{ errorMessage }}
         </p>
 
-        <button class="btn btn-primary" type="submit">
-          登录
-        </button>
+        <button
+  class="btn btn-primary"
+  type="submit"
+  :disabled="submitting"
+>
+  {{ submitting ? "登录中..." : "登录" }}
+</button>
       </form>
 
       <p class="auth-switch">
