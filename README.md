@@ -2,7 +2,7 @@
 
 一个面向校园的失物与招领信息平台。用户可以搜索物品、按类型和分类筛选、查看详情、注册登录、发布信息，管理员可以删除违规内容。
 
-当前进度：**第 7 周 E2E 与 GitHub Actions CI**。
+当前进度：**第 8 周 Docker Compose 一键启动**。
 
 ![CI](https://github.com/chengjiayi0410-prog/campus-lost-found-week2-practice/actions/workflows/ci.yml/badge.svg)
 
@@ -39,6 +39,8 @@
 - Multer
 - Vitest
 - Supertest
+- Docker Compose
+- Nginx
 
 ## 页面
 
@@ -125,3 +127,32 @@ npm run test:e2e:ui
 ```
 
 CI 配置位于 `.github/workflows/ci.yml`。
+
+## Docker 一键启动
+
+复制环境变量模板并填写本地密码：
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+启动完整系统：
+
+```bash
+docker compose --env-file .env.docker up -d --build
+```
+
+访问：
+
+```text
+http://localhost:8080
+```
+
+查看状态与日志：
+
+```bash
+docker compose --env-file .env.docker ps
+docker compose --env-file .env.docker logs -f
+```
+
+Docker 说明：[docs/docker.md](docs/docker.md)

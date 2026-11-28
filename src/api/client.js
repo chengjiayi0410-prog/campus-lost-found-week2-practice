@@ -1,8 +1,11 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api"
-).replace(/\/$/, "");
+const configuredApiUrl =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
-const API_ORIGIN = new URL(API_BASE_URL).origin;
+const API_BASE_URL = configuredApiUrl.replace(/\/$/, "");
+
+const API_ORIGIN = /^https?:\/\//.test(API_BASE_URL)
+  ? new URL(API_BASE_URL).origin
+  : window.location.origin;
 const TOKEN_KEY = "campus_lost_found_token";
 
 export class ApiError extends Error {

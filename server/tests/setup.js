@@ -19,6 +19,7 @@ const schema = await fs.readFile(
 );
 
 const testSchema = schema
+  .replace(/^SET NAMES[^;]+;\s*/i, "")
   .replace(/^CREATE DATABASE[\s\S]*?;\s*/i, "")
   .replace(/^USE\s+[^;]+;\s*/i, "");
 

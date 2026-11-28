@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+dist
+coverage
+playwright-report
+test-results
+tests
+server
+docs
+.env
+.env.*
+*.log
+README.md

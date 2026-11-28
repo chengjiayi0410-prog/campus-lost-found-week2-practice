@@ -30,4 +30,5 @@ test-results
 .env.*
 !.env.example
 !.env.test.example
+!.env.docker.example
 server/uploads/
