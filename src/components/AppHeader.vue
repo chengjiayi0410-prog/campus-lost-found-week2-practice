@@ -3,12 +3,7 @@ import { RouterLink, useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
-const {
-  currentUser,
-  isLoggedIn,
-  isAdmin,
-  logout
-} = useAuthStore();
+const { currentUser, isLoggedIn, isAdmin, logout } = useAuthStore();
 
 function handleLogout() {
   logout();
@@ -25,11 +20,7 @@ function handleLogout() {
       </RouterLink>
 
       <nav class="header-nav" aria-label="主导航">
-        <RouterLink
-          v-if="isAdmin"
-          class="nav-link"
-          :to="{ name: 'admin' }"
-        >
+        <RouterLink v-if="isAdmin" class="nav-link" :to="{ name: 'admin' }">
           管理
         </RouterLink>
 
@@ -37,11 +28,7 @@ function handleLogout() {
           <span class="header-user">
             {{ currentUser?.nickname }}
           </span>
-          <button
-            class="btn btn-secondary"
-            type="button"
-            @click="handleLogout"
-          >
+          <button class="btn btn-secondary" type="button" @click="handleLogout">
             退出
           </button>
         </template>
@@ -55,10 +42,7 @@ function handleLogout() {
           </RouterLink>
         </template>
 
-        <RouterLink
-          class="btn btn-primary"
-          :to="{ name: 'publish' }"
-        >
+        <RouterLink class="btn btn-primary" :to="{ name: 'publish' }">
           发布
         </RouterLink>
       </nav>

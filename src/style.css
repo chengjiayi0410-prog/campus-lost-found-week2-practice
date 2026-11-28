@@ -322,7 +322,9 @@ p {
   font-size: 13px;
   opacity: 0;
   transform: translateX(-2px);
-  transition: opacity 140ms ease, transform 140ms ease;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
 }
 
 .card-link:hover .row-arrow {

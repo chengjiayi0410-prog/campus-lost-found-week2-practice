@@ -38,11 +38,7 @@ function formatDate(value) {
           </span>
           <span
             class="badge"
-            :class="
-              item.type === 'lost'
-                ? 'badge-lost'
-                : 'badge-found'
-            "
+            :class="item.type === 'lost' ? 'badge-lost' : 'badge-found'"
           >
             {{ typeLabels[item.type] }}
           </span>

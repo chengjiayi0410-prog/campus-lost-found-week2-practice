@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-tests:
+    name: Quality and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci_password
+          MYSQL_DATABASE: campus_lost_found_test
+          MYSQL_USER: lostfound_ci
+          MYSQL_PASSWORD: lostfound_ci_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -u root -proot_ci_password"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      CI: "true"
+      NODE_ENV: test
+      PORT: "3001"
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_USER: lostfound_ci
+      DB_PASSWORD: lostfound_ci_password
+      DB_NAME: campus_lost_found_test
+      JWT_SECRET: ci_only_jwt_secret_with_at_least_32_characters
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        run: npm --prefix server ci
+
+      - name: Create test environment
+        run: |
+          printf '%s\n' \
+            "NODE_ENV=test" \
+            "PORT=3001" \
+            "DB_HOST=127.0.0.1" \
+            "DB_PORT=3306" \
+            "DB_USER=lostfound_ci" \
+            "DB_PASSWORD=lostfound_ci_password" \
+            "DB_NAME=campus_lost_found_test" \
+            "JWT_SECRET=ci_only_jwt_secret_with_at_least_32_characters" \
+            > server/.env.test
+
+      - name: Check code quality
+        run: |
+          npm run lint
+          npm run format:check
+
+      - name: Run API tests with coverage
+        run: npm --prefix server run test:coverage
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: npm run test:e2e
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage
+          path: server/coverage
+          if-no-files-found: ignore
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore

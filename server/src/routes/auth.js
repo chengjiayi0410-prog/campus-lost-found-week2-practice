@@ -11,11 +11,7 @@ function normalizeUsername(value) {
   return value.trim().toLowerCase();
 }
 
-function validateRegisterInput({
-  username,
-  password,
-  nickname
-}) {
+function validateRegisterInput({ username, password, nickname }) {
   if (typeof username !== "string") {
     return "用户名不能为空";
   }
@@ -34,10 +30,7 @@ function validateRegisterInput({
     return "密码过长，请控制在 72 字节以内";
   }
 
-  if (
-    nickname !== undefined &&
-    typeof nickname !== "string"
-  ) {
+  if (nickname !== undefined && typeof nickname !== "string") {
     return "昵称格式不正确";
   }
 
@@ -50,11 +43,7 @@ function validateRegisterInput({
 
 router.post("/register", async (request, response, next) => {
   try {
-    const {
-      username,
-      password,
-      nickname
-    } = request.body || {};
+    const { username, password, nickname } = request.body || {};
 
     const validationMessage = validateRegisterInput({
       username,
@@ -69,8 +58,7 @@ router.post("/register", async (request, response, next) => {
     }
 
     const normalizedUsername = normalizeUsername(username);
-    const displayName =
-      (nickname || "").trim() || normalizedUsername;
+    const displayName = (nickname || "").trim() || normalizedUsername;
 
     const passwordHash = await bcrypt.hash(password, 12);
 
@@ -84,12 +72,7 @@ router.post("/register", async (request, response, next) => {
         )
         VALUES (?, ?, ?, ?)
       `,
-      [
-        normalizedUsername,
-        passwordHash,
-        displayName,
-        "user"
-      ]
+      [normalizedUsername, passwordHash, displayName, "user"]
     );
 
     return response.status(201).json({
@@ -114,10 +97,7 @@ router.post("/register", async (request, response, next) => {
 
 router.post("/login", async (request, response, next) => {
   try {
-    const {
-      username,
-      password
-    } = request.body || {};
+    const { username, password } = request.body || {};
 
     if (
       typeof username !== "string" ||

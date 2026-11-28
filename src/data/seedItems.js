@@ -26,7 +26,7 @@ export const seedItems = [
     location: "东区食堂二楼",
     date: "11月16日 18:05"
   },
-    {
+  {
     id: 4,
     type: "found",
     category: "key",
@@ -58,7 +58,8 @@ export const seedItems = [
     type: "lost",
     category: "other",
     title: "灰色雨伞，伞柄有姓名贴",
-    description: "折叠伞，伞面是深灰色，伞柄贴着一张白色姓名贴，可能落在快递站。",
+    description:
+      "折叠伞，伞面是深灰色，伞柄贴着一张白色姓名贴，可能落在快递站。",
     location: "南门快递站",
     date: "11月15日 19:25"
   },
@@ -67,7 +68,8 @@ export const seedItems = [
     type: "found",
     category: "book",
     title: "捡到一本《高等数学》习题册",
-    description: "封面写着班级和学号后四位，里面有很多铅笔演算，暂放在自习室管理员处。",
+    description:
+      "封面写着班级和学号后四位，里面有很多铅笔演算，暂放在自习室管理员处。",
     location: "西区自习室",
     date: "11月16日 21:00"
   },
@@ -103,11 +105,11 @@ export const seedItems = [
     type: "found",
     category: "card",
     title: "捡到身份证一张，请失主联系",
-    description: "在校医院门口捡到，证件信息已做遮挡处理，请失主说明姓名后认领。",
+    description:
+      "在校医院门口捡到，证件信息已做遮挡处理，请失主说明姓名后认领。",
     location: "校医院门口",
     date: "11月17日 09:05"
   }
-  
 ];
 export const typeLabels = {
   lost: "失物",
@@ -129,4 +131,3 @@ export const categoryIcons = {
   key: "🔑",
   other: "🎒"
 };
-

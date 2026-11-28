@@ -1,11 +1,7 @@
 import "dotenv/config";
 import mysql from "mysql2/promise";
 
-const requiredVariables = [
-  "DB_USER",
-  "DB_PASSWORD",
-  "DB_NAME"
-];
+const requiredVariables = ["DB_USER", "DB_PASSWORD", "DB_NAME"];
 
 for (const variable of requiredVariables) {
   if (!process.env[variable]) {

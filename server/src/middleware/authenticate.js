@@ -2,11 +2,7 @@ import jwt from "jsonwebtoken";
 import { authConfig } from "../config/auth.js";
 import { pool } from "../config/db.js";
 
-export async function authenticate(
-  request,
-  response,
-  next
-) {
+export async function authenticate(request, response, next) {
   const authorization = request.get("authorization");
 
   if (
@@ -34,16 +30,13 @@ export async function authenticate(
       audience: authConfig.audience,
       algorithms: [authConfig.algorithm]
     });
-  } catch (error) {
+  } catch {
     return response.status(401).json({
       message: "登录已失效，请重新登录"
     });
   }
 
-  if (
-    typeof payload !== "object" ||
-    typeof payload.sub !== "string"
-  ) {
+  if (typeof payload !== "object" || typeof payload.sub !== "string") {
     return response.status(401).json({
       message: "无效的登录凭证"
     });

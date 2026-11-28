@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+server/node_modules
+server/coverage
+server/uploads
+playwright-report
+test-results
+package-lock.json

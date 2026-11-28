@@ -43,9 +43,7 @@ async function submitForm() {
   <main class="shell page">
     <section class="auth-card">
       <h1>注册</h1>
-      <p class="form-hint">
-        注册成功后会直接进入登录状态。
-      </p>
+      <p class="form-hint">注册成功后会直接进入登录状态。</p>
 
       <form class="form-stack" @submit.prevent="submitForm">
         <label class="form-field">
@@ -55,7 +53,7 @@ async function submitForm() {
             type="text"
             maxlength="50"
             autocomplete="nickname"
-          >
+          />
         </label>
 
         <label class="form-field">
@@ -67,7 +65,7 @@ async function submitForm() {
             maxlength="30"
             autocomplete="username"
             required
-          >
+          />
         </label>
 
         <label class="form-field">
@@ -78,7 +76,7 @@ async function submitForm() {
             minlength="8"
             autocomplete="new-password"
             required
-          >
+          />
         </label>
 
         <label class="form-field">
@@ -89,20 +87,16 @@ async function submitForm() {
             minlength="8"
             autocomplete="new-password"
             required
-          >
+          />
         </label>
 
         <p v-if="errorMessage" class="form-error">
           {{ errorMessage }}
         </p>
 
-        <button
-  class="btn btn-primary"
-  type="submit"
-  :disabled="submitting"
->
-  {{ submitting ? "注册中..." : "注册" }}
-</button>
+        <button class="btn btn-primary" type="submit" :disabled="submitting">
+          {{ submitting ? "注册中..." : "注册" }}
+        </button>
       </form>
 
       <p class="auth-switch">

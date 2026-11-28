@@ -52,9 +52,7 @@ async function fetchItems({
   }
 
   try {
-    const data = await apiRequest(
-      `/posts?${query.toString()}`
-    );
+    const data = await apiRequest(`/posts?${query.toString()}`);
 
     state.items = data.data;
     state.pagination = data.pagination;
@@ -102,18 +100,13 @@ async function updateItem(id, payload) {
     body: payload
   });
 
-  const index = state.items.findIndex(
-    (item) => String(item.id) === String(id)
-  );
+  const index = state.items.findIndex((item) => String(item.id) === String(id));
 
   if (index >= 0) {
     state.items[index] = data.data;
   }
 
-  if (
-    state.currentItem &&
-    String(state.currentItem.id) === String(id)
-  ) {
+  if (state.currentItem && String(state.currentItem.id) === String(id)) {
     state.currentItem = data.data;
   }
 
@@ -125,9 +118,7 @@ async function removeItem(id) {
     method: "DELETE"
   });
 
-  state.items = state.items.filter(
-    (item) => String(item.id) !== String(id)
-  );
+  state.items = state.items.filter((item) => String(item.id) !== String(id));
 
   if (state.pagination.total > 0) {
     state.pagination = {

@@ -12,17 +12,12 @@ const props = defineProps({
   }
 });
 
-const {
-  currentItem,
-  itemLoading,
-  itemError,
-  fetchItemById
-} = useItemStore();
+const { currentItem, itemLoading, itemError, fetchItemById } = useItemStore();
 
 async function loadItem() {
   try {
     await fetchItemById(props.id);
-  } catch (error) {
+  } catch {
     // 错误消息已经保存在 store 中
   }
 }
@@ -70,9 +65,7 @@ watch(() => props.id, loadItem);
             <span
               class="badge"
               :class="
-                currentItem.type === 'lost'
-                  ? 'badge-lost'
-                  : 'badge-found'
+                currentItem.type === 'lost' ? 'badge-lost' : 'badge-found'
               "
             >
               {{ typeLabels[currentItem.type] }}
@@ -96,7 +89,7 @@ watch(() => props.id, loadItem);
           class="detail-image"
           :src="getApiAssetUrl(currentItem.images[0].url)"
           :alt="currentItem.title"
-        >
+        />
 
         <p class="detail-desc">
           {{ currentItem.description }}

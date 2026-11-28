@@ -1,11 +1,6 @@
 import { pool } from "../../src/config/db.js";
 
-const tables = [
-  "images",
-  "posts",
-  "categories",
-  "users"
-];
+const tables = ["images", "posts", "categories", "users"];
 
 export async function resetTestDatabase() {
   const connection = await pool.getConnection();

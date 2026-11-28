@@ -1,10 +1,5 @@
 import { computed, reactive } from "vue";
-import {
-  apiRequest,
-  clearToken,
-  getToken,
-  setToken
-} from "../api/client.js";
+import { apiRequest, clearToken, getToken, setToken } from "../api/client.js";
 
 const state = reactive({
   currentUser: null,
@@ -13,16 +8,10 @@ const state = reactive({
 
 const currentUser = computed(() => state.currentUser);
 const isLoggedIn = computed(() => Boolean(state.currentUser));
-const isAdmin = computed(
-  () => state.currentUser?.role === "admin"
-);
+const isAdmin = computed(() => state.currentUser?.role === "admin");
 const initialized = computed(() => state.initialized);
 
-async function register({
-  username,
-  password,
-  nickname
-}) {
+async function register({ username, password, nickname }) {
   await apiRequest("/auth/register", {
     method: "POST",
     body: {

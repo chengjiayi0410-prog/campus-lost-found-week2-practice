@@ -1,20 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import request from "supertest";
-import {
-  afterAll,
-  beforeEach,
-  describe,
-  expect,
-  it
-} from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { pool } from "../src/config/db.js";
 import { uploadDirectory } from "../src/config/uploads.js";
-import {
-  closeTestDatabase,
-  resetTestDatabase
-} from "./helpers/database.js";
+import { closeTestDatabase, resetTestDatabase } from "./helpers/database.js";
 
 const app = createApp();
 const testPassword = "TestPass123!";
@@ -24,13 +15,11 @@ const onePixelPng = Buffer.from(
 );
 
 async function register(username, nickname = username) {
-  return request(app)
-    .post("/api/auth/register")
-    .send({
-      username,
-      password: testPassword,
-      nickname
-    });
+  return request(app).post("/api/auth/register").send({
+    username,
+    password: testPassword,
+    nickname
+  });
 }
 
 async function createUser(username, role = "user") {
@@ -38,18 +27,15 @@ async function createUser(username, role = "user") {
   expect(registration.status).toBe(201);
 
   if (role === "admin") {
-    await pool.execute(
-      "UPDATE users SET role = 'admin' WHERE username = ?",
-      [username]
-    );
+    await pool.execute("UPDATE users SET role = 'admin' WHERE username = ?", [
+      username
+    ]);
   }
 
-  const login = await request(app)
-    .post("/api/auth/login")
-    .send({
-      username,
-      password: testPassword
-    });
+  const login = await request(app).post("/api/auth/login").send({
+    username,
+    password: testPassword
+  });
 
   expect(login.status).toBe(200);
 
@@ -83,10 +69,7 @@ afterAll(async () => {
 
 describe("authentication API", () => {
   it("registers, logs in, and returns the current user", async () => {
-    const registration = await register(
-      "student1",
-      "测试同学"
-    );
+    const registration = await register("student1", "测试同学");
 
     expect(registration.status).toBe(201);
     expect(registration.body.user).toMatchObject({
@@ -94,16 +77,12 @@ describe("authentication API", () => {
       nickname: "测试同学",
       role: "user"
     });
-    expect(registration.body.user).not.toHaveProperty(
-      "password_hash"
-    );
+    expect(registration.body.user).not.toHaveProperty("password_hash");
 
-    const login = await request(app)
-      .post("/api/auth/login")
-      .send({
-        username: "student1",
-        password: testPassword
-      });
+    const login = await request(app).post("/api/auth/login").send({
+      username: "student1",
+      password: testPassword
+    });
 
     expect(login.status).toBe(200);
     expect(login.body.token).toEqual(expect.any(String));
@@ -131,12 +110,10 @@ describe("authentication API", () => {
   it("rejects an incorrect password and missing token", async () => {
     await register("student1");
 
-    const login = await request(app)
-      .post("/api/auth/login")
-      .send({
-        username: "student1",
-        password: "WrongPassword123!"
-      });
+    const login = await request(app).post("/api/auth/login").send({
+      username: "student1",
+      password: "WrongPassword123!"
+    });
 
     expect(login.status).toBe(401);
 
@@ -160,9 +137,7 @@ describe("posts API", () => {
       location: "西区自习室"
     });
 
-    const all = await request(app)
-      .get("/api/posts")
-      .query({ pageSize: 1 });
+    const all = await request(app).get("/api/posts").query({ pageSize: 1 });
 
     expect(all.status).toBe(200);
     expect(all.body.data).toHaveLength(1);
@@ -173,21 +148,17 @@ describe("posts API", () => {
       totalPages: 2
     });
 
-    const filtered = await request(app)
-      .get("/api/posts")
-      .query({
-        type: "found",
-        category: "electronics",
-        keyword: "耳机"
-      });
+    const filtered = await request(app).get("/api/posts").query({
+      type: "found",
+      category: "electronics",
+      keyword: "耳机"
+    });
 
     expect(filtered.status).toBe(200);
     expect(filtered.body.pagination.total).toBe(1);
     expect(filtered.body.data[0].title).toBe("白色蓝牙耳机");
 
-    const detail = await request(app).get(
-      `/api/posts/${first.body.data.id}`
-    );
+    const detail = await request(app).get(`/api/posts/${first.body.data.id}`);
 
     expect(detail.status).toBe(200);
     expect(detail.body.data.author.username).toBe("owner1");
@@ -248,10 +219,9 @@ describe("posts API", () => {
 
     expect(deleted.status).toBe(200);
 
-    const [rows] = await pool.execute(
-      "SELECT status FROM posts WHERE id = ?",
-      [postId]
-    );
+    const [rows] = await pool.execute("SELECT status FROM posts WHERE id = ?", [
+      postId
+    ]);
 
     expect(rows[0].status).toBe("removed");
     await request(app).get(`/api/posts/${postId}`).expect(404);
@@ -271,9 +241,7 @@ describe("posts API", () => {
       });
 
     expect(upload.status).toBe(201);
-    expect(upload.body.data.url).toMatch(
-      /^\/uploads\/.+\.png$/
-    );
+    expect(upload.body.data.url).toMatch(/^\/uploads\/.+\.png$/);
 
     const uploadedPath = path.join(
       uploadDirectory,
@@ -298,14 +266,10 @@ describe("posts API", () => {
       await request(app)
         .post(`/api/posts/${secondPost.body.data.id}/images`)
         .set("Authorization", `Bearer ${owner.token}`)
-        .attach(
-          "image",
-          Buffer.from("<svg></svg>"),
-          {
-            filename: "invalid.svg",
-            contentType: "image/svg+xml"
-          }
-        )
+        .attach("image", Buffer.from("<svg></svg>"), {
+          filename: "invalid.svg",
+          contentType: "image/svg+xml"
+        })
         .expect(400);
     } finally {
       await fs.rm(uploadedPath, { force: true });

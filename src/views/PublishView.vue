@@ -1,20 +1,11 @@
 <script setup>
-import {
-  onBeforeUnmount,
-  ref
-} from "vue";
+import { onBeforeUnmount, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import {
-  categoryLabels,
-  typeLabels
-} from "../data/seedItems";
+import { categoryLabels, typeLabels } from "../data/seedItems";
 import { useItemStore } from "../stores/items";
 
 const router = useRouter();
-const {
-  addItem,
-  uploadItemImage
-} = useItemStore();
+const { addItem, uploadItemImage } = useItemStore();
 
 const selectedType = ref("lost");
 const category = ref("card");
@@ -26,15 +17,12 @@ const imagePreview = ref("");
 const errorMessage = ref("");
 const submitting = ref(false);
 
-const allowedImageTypes = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp"
-]);
+const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-const typeOptions = Object.entries(typeLabels).map(
-  ([value, label]) => ({ value, label })
-);
+const typeOptions = Object.entries(typeLabels).map(([value, label]) => ({
+  value,
+  label
+}));
 
 const categoryOptions = Object.entries(categoryLabels).map(
   ([value, label]) => ({ value, label })
@@ -112,9 +100,7 @@ async function submitForm() {
       try {
         await uploadItemImage(post.id, imageFile.value);
       } catch (uploadError) {
-        window.alert(
-          `信息已发布，但图片上传失败：${uploadError.message}`
-        );
+        window.alert(`信息已发布，但图片上传失败：${uploadError.message}`);
       }
     }
 
@@ -138,9 +124,7 @@ onBeforeUnmount(clearImagePreview);
       <div class="publish-head">
         <div>
           <h1>发布信息</h1>
-          <p class="form-hint">
-            填写物品信息，帮助失主与拾取者尽快联系。
-          </p>
+          <p class="form-hint">填写物品信息，帮助失主与拾取者尽快联系。</p>
         </div>
 
         <RouterLink class="back-link" :to="{ name: 'home' }">
@@ -184,7 +168,7 @@ onBeforeUnmount(clearImagePreview);
             type="text"
             maxlength="100"
             placeholder="例如：蓝色校园卡"
-          >
+          />
         </label>
 
         <label class="form-field">
@@ -204,18 +188,16 @@ onBeforeUnmount(clearImagePreview);
             type="text"
             maxlength="100"
             placeholder="例如：图书馆三楼"
-          >
+          />
         </label>
 
         <label class="form-field">
-          <span>
-            物品图片（选填，JPG/PNG/WebP，最大 2 MB）
-          </span>
+          <span> 物品图片（选填，JPG/PNG/WebP，最大 2 MB） </span>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
             @change="handleImageChange"
-          >
+          />
         </label>
 
         <img
@@ -223,18 +205,14 @@ onBeforeUnmount(clearImagePreview);
           class="image-preview"
           :src="imagePreview"
           alt="待发布图片预览"
-        >
+        />
 
         <p v-if="errorMessage" class="form-error">
           {{ errorMessage }}
         </p>
 
         <div class="publish-actions">
-          <button
-            class="btn btn-primary"
-            type="submit"
-            :disabled="submitting"
-          >
+          <button class="btn btn-primary" type="submit" :disabled="submitting">
             {{ submitting ? "发布中..." : "发布信息" }}
           </button>
         </div>

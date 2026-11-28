@@ -58,32 +58,32 @@ erDiagram
 
 ## users 用户表
 
-| 字段 | 类型 | 约束 | 用途 |
-| --- | --- | --- | --- |
-| id | BIGINT UNSIGNED | 主键、自增 | 用户 ID |
-| username | VARCHAR(30) | 唯一、非空 | 登录用户名 |
-| password_hash | VARCHAR(100) | 非空 | bcrypt 密码哈希 |
-| nickname | VARCHAR(50) | 非空 | 页面显示名称 |
-| role | ENUM('user', 'admin') | 默认 user | 用户角色 |
-| created_at | TIMESTAMP | 默认当前时间 | 注册时间 |
-| updated_at | TIMESTAMP | 自动更新时间 | 最后修改时间 |
+| 字段          | 类型                  | 约束         | 用途            |
+| ------------- | --------------------- | ------------ | --------------- |
+| id            | BIGINT UNSIGNED       | 主键、自增   | 用户 ID         |
+| username      | VARCHAR(30)           | 唯一、非空   | 登录用户名      |
+| password_hash | VARCHAR(100)          | 非空         | bcrypt 密码哈希 |
+| nickname      | VARCHAR(50)           | 非空         | 页面显示名称    |
+| role          | ENUM('user', 'admin') | 默认 user    | 用户角色        |
+| created_at    | TIMESTAMP             | 默认当前时间 | 注册时间        |
+| updated_at    | TIMESTAMP             | 自动更新时间 | 最后修改时间    |
 
 密码绝对不能以明文保存。第 3 周使用 bcrypt 后，`password_hash` 保存哈希值，不保存用户输入的密码。
 
 ## posts 信息表
 
-| 字段 | 类型 | 约束 | 用途 |
-| --- | --- | --- | --- |
-| id | BIGINT UNSIGNED | 主键、自增 | 信息 ID |
-| user_id | BIGINT UNSIGNED | 外键、非空 | 发布者 |
-| category_id | BIGINT UNSIGNED | 外键、非空 | 物品分类 |
-| type | ENUM('lost', 'found') | 非空 | 失物或招领 |
-| title | VARCHAR(100) | 非空 | 物品名称 |
-| description | TEXT | 非空 | 详细描述 |
-| location | VARCHAR(100) | 非空 | 丢失或拾取地点 |
-| status | ENUM('active', 'resolved', 'removed') | 默认 active | 信息状态 |
-| created_at | DATETIME | 默认当前时间 | 发布时间 |
-| updated_at | DATETIME | 自动更新时间 | 最后修改时间 |
+| 字段        | 类型                                  | 约束         | 用途           |
+| ----------- | ------------------------------------- | ------------ | -------------- |
+| id          | BIGINT UNSIGNED                       | 主键、自增   | 信息 ID        |
+| user_id     | BIGINT UNSIGNED                       | 外键、非空   | 发布者         |
+| category_id | BIGINT UNSIGNED                       | 外键、非空   | 物品分类       |
+| type        | ENUM('lost', 'found')                 | 非空         | 失物或招领     |
+| title       | VARCHAR(100)                          | 非空         | 物品名称       |
+| description | TEXT                                  | 非空         | 详细描述       |
+| location    | VARCHAR(100)                          | 非空         | 丢失或拾取地点 |
+| status      | ENUM('active', 'resolved', 'removed') | 默认 active  | 信息状态       |
+| created_at  | DATETIME                              | 默认当前时间 | 发布时间       |
+| updated_at  | DATETIME                              | 自动更新时间 | 最后修改时间   |
 
 `type` 和 `status` 分开保存：
 
@@ -92,34 +92,34 @@ erDiagram
 
 ## categories 分类表
 
-| 字段 | 类型 | 约束 | 用途 |
-| --- | --- | --- | --- |
-| id | BIGINT UNSIGNED | 主键、自增 | 分类 ID |
-| slug | VARCHAR(30) | 唯一、非空 | 程序使用的英文标识 |
-| name | VARCHAR(30) | 非空 | 页面显示的中文名称 |
-| icon | VARCHAR(16) | 非空 | 分类图标 |
+| 字段 | 类型            | 约束       | 用途               |
+| ---- | --------------- | ---------- | ------------------ |
+| id   | BIGINT UNSIGNED | 主键、自增 | 分类 ID            |
+| slug | VARCHAR(30)     | 唯一、非空 | 程序使用的英文标识 |
+| name | VARCHAR(30)     | 非空       | 页面显示的中文名称 |
+| icon | VARCHAR(16)     | 非空       | 分类图标           |
 
 初始分类：
 
-| slug | name | icon |
-| --- | --- | --- |
-| card | 证件 | 💳 |
-| electronics | 电子设备 | 📱 |
-| book | 书籍 | 📚 |
-| key | 钥匙 | 🔑 |
-| other | 其他 | 🎒 |
+| slug        | name     | icon |
+| ----------- | -------- | ---- |
+| card        | 证件     | 💳   |
+| electronics | 电子设备 | 📱   |
+| book        | 书籍     | 📚   |
+| key         | 钥匙     | 🔑   |
+| other       | 其他     | 🎒   |
 
 分类单独建表，便于后续增加新分类，而不需要修改 `posts` 表结构。
 
 ## images 图片表
 
-| 字段 | 类型 | 约束 | 用途 |
-| --- | --- | --- | --- |
-| id | BIGINT UNSIGNED | 主键、自增 | 图片 ID |
-| post_id | BIGINT UNSIGNED | 外键、非空 | 所属信息 |
-| url | VARCHAR(500) | 非空 | 图片访问地址 |
-| sort_order | TINYINT UNSIGNED | 默认 0 | 多图排序 |
-| created_at | DATETIME | 默认当前时间 | 上传时间 |
+| 字段       | 类型             | 约束         | 用途         |
+| ---------- | ---------------- | ------------ | ------------ |
+| id         | BIGINT UNSIGNED  | 主键、自增   | 图片 ID      |
+| post_id    | BIGINT UNSIGNED  | 外键、非空   | 所属信息     |
+| url        | VARCHAR(500)     | 非空         | 图片访问地址 |
+| sort_order | TINYINT UNSIGNED | 默认 0       | 多图排序     |
+| created_at | DATETIME         | 默认当前时间 | 上传时间     |
 
 数据库中不保存图片二进制内容，只保存文件地址。第 4 周图片文件会保存到上传目录或对象存储，数据库只记录 URL。
 
@@ -192,11 +192,11 @@ CREATE TABLE images (
 
 ## 第 3 周已实现接口
 
-| 方法 | 地址 | 权限 | 用途 |
-| --- | --- | --- | --- |
-| POST | `/api/auth/register` | 公开 | 注册普通用户 |
-| POST | `/api/auth/login` | 公开 | 校验密码并签发 JWT |
-| GET | `/api/auth/me` | 需要 Bearer Token | 获取当前用户 |
+| 方法 | 地址                 | 权限              | 用途               |
+| ---- | -------------------- | ----------------- | ------------------ |
+| POST | `/api/auth/register` | 公开              | 注册普通用户       |
+| POST | `/api/auth/login`    | 公开              | 校验密码并签发 JWT |
+| GET  | `/api/auth/me`       | 需要 Bearer Token | 获取当前用户       |
 
 安全措施：
 

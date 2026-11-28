@@ -1,14 +1,11 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
 import multer from "multer";
 import { uploadDirectory } from "../config/uploads.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { Router } from "express";
 import { pool } from "../config/db.js";
-import {
-  parsePositiveInteger
-} from "../utils/pagination.js";
+import { parsePositiveInteger } from "../utils/pagination.js";
 
 const router = Router();
 
@@ -27,8 +24,7 @@ const imageStorage = multer.diskStorage({
 
   filename(request, file, callback) {
     const extension = allowedImageTypes.get(file.mimetype);
-    const filename =
-      `${Date.now()}-${crypto.randomUUID()}${extension}`;
+    const filename = `${Date.now()}-${crypto.randomUUID()}${extension}`;
 
     callback(null, filename);
   }
@@ -42,9 +38,7 @@ const imageUpload = multer({
   },
   fileFilter(request, file, callback) {
     if (!allowedImageTypes.has(file.mimetype)) {
-      const error = new Error(
-        "仅支持 JPG、PNG 和 WebP 图片"
-      );
+      const error = new Error("仅支持 JPG、PNG 和 WebP 图片");
 
       error.status = 400;
       return callback(error);
@@ -55,34 +49,25 @@ const imageUpload = multer({
 });
 
 function handleImageUpload(request, response, next) {
-  imageUpload.single("image")(
-    request,
-    response,
-    (error) => {
-      if (!error) {
-        return next();
-      }
-
-      if (error.code === "LIMIT_FILE_SIZE") {
-        return response.status(400).json({
-          message: "图片不能超过 2 MB"
-        });
-      }
-
-      if (
-        error.status === 400 ||
-        error.code === "LIMIT_UNEXPECTED_FILE"
-      ) {
-        return response.status(400).json({
-          message:
-            error.message ||
-            "图片上传参数无效，只允许一个 image 文件"
-        });
-      }
-
-      return next(error);
+  imageUpload.single("image")(request, response, (error) => {
+    if (!error) {
+      return next();
     }
-  );
+
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return response.status(400).json({
+        message: "图片不能超过 2 MB"
+      });
+    }
+
+    if (error.status === 400 || error.code === "LIMIT_UNEXPECTED_FILE") {
+      return response.status(400).json({
+        message: error.message || "图片上传参数无效，只允许一个 image 文件"
+      });
+    }
+
+    return next(error);
+  });
 }
 
 const postSelect = `
@@ -153,9 +138,7 @@ async function attachImages(posts) {
     posts.map((post) => post.id)
   );
 
-  const postsById = new Map(
-    posts.map((post) => [String(post.id), post])
-  );
+  const postsById = new Map(posts.map((post) => [String(post.id), post]));
 
   for (const image of imageRows) {
     const post = postsById.get(String(image.postId));
@@ -188,17 +171,10 @@ async function findPostForMutation(id) {
 }
 
 function canManagePost(post, user) {
-  return (
-    user.role === "admin" ||
-    String(post.userId) === String(user.id)
-  );
+  return user.role === "admin" || String(post.userId) === String(user.id);
 }
 
-async function authorizeImageUpload(
-  request,
-  response,
-  next
-) {
+async function authorizeImageUpload(request, response, next) {
   try {
     const id = Number(request.params.id);
 
@@ -247,10 +223,7 @@ async function authorizeImageUpload(
 router.get("/", async (request, response, next) => {
   try {
     const page = parsePositiveInteger(request.query.page, 1);
-    const pageSize = parsePositiveInteger(
-      request.query.pageSize,
-      10
-    );
+    const pageSize = parsePositiveInteger(request.query.pageSize, 10);
 
     if (!page || !pageSize || pageSize > 50) {
       return response.status(400).json({
@@ -259,9 +232,7 @@ router.get("/", async (request, response, next) => {
     }
 
     const type =
-      typeof request.query.type === "string"
-        ? request.query.type.trim()
-        : "";
+      typeof request.query.type === "string" ? request.query.type.trim() : "";
 
     if (type && !["lost", "found"].includes(type)) {
       return response.status(400).json({
@@ -346,8 +317,7 @@ router.get("/", async (request, response, next) => {
         page,
         pageSize,
         total,
-        totalPages:
-          total === 0 ? 0 : Math.ceil(total / pageSize)
+        totalPages: total === 0 ? 0 : Math.ceil(total / pageSize)
       }
     });
   } catch (error) {
@@ -479,8 +449,7 @@ router.post(
       });
     }
 
-    const imageUrl =
-      `/uploads/${request.file.filename}`;
+    const imageUrl = `/uploads/${request.file.filename}`;
 
     try {
       const [result] = await pool.execute(
@@ -504,9 +473,7 @@ router.post(
         }
       });
     } catch (error) {
-      await fs.promises
-        .unlink(request.file.path)
-        .catch(() => {});
+      await fs.promises.unlink(request.file.path).catch(() => {});
 
       return next(error);
     }

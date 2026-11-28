@@ -1,6 +1,5 @@
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:3000/api"
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api"
 ).replace(/\/$/, "");
 
 const API_ORIGIN = new URL(API_BASE_URL).origin;
@@ -32,27 +31,18 @@ export function getApiAssetUrl(path) {
     return "";
   }
 
-  return path.startsWith("http")
-    ? path
-    : new URL(path, API_ORIGIN).toString();
+  return path.startsWith("http") ? path : new URL(path, API_ORIGIN).toString();
 }
 
 export async function apiRequest(
   path,
-  {
-    method = "GET",
-    body,
-    headers = {}
-  } = {}
+  { method = "GET", body, headers = {} } = {}
 ) {
   const requestHeaders = new Headers(headers);
   const token = getToken();
 
   if (token) {
-    requestHeaders.set(
-      "Authorization",
-      `Bearer ${token}`
-    );
+    requestHeaders.set("Authorization", `Bearer ${token}`);
   }
 
   let requestBody;
@@ -60,32 +50,23 @@ export async function apiRequest(
   if (body instanceof FormData) {
     requestBody = body;
   } else if (body !== undefined) {
-    requestHeaders.set(
-      "Content-Type",
-      "application/json"
-    );
+    requestHeaders.set("Content-Type", "application/json");
     requestBody = JSON.stringify(body);
   }
 
   let response;
 
   try {
-    response = await fetch(
-      `${API_BASE_URL}${path}`,
-      {
-        method,
-        headers: requestHeaders,
-        body: requestBody
-      }
-    );
-  } catch (error) {
-    throw new ApiError(
-      "无法连接服务器，请确认后端已经启动"
-    );
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: requestHeaders,
+      body: requestBody
+    });
+  } catch {
+    throw new ApiError("无法连接服务器，请确认后端已经启动");
   }
 
-  const contentType =
-    response.headers.get("content-type") || "";
+  const contentType = response.headers.get("content-type") || "";
 
   let data = null;
 
@@ -97,17 +78,11 @@ export async function apiRequest(
 
   if (!response.ok) {
     const message =
-      data &&
-      typeof data === "object" &&
-      typeof data.message === "string"
+      data && typeof data === "object" && typeof data.message === "string"
         ? data.message
         : `请求失败（${response.status}）`;
 
-    throw new ApiError(
-      message,
-      response.status,
-      data
-    );
+    throw new ApiError(message, response.status, data);
   }
 
   return data;

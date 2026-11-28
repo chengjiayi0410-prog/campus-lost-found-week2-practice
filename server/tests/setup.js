@@ -4,17 +4,13 @@ import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 
 dotenv.config({
-  path: fileURLToPath(
-    new URL("../.env.test", import.meta.url)
-  ),
+  path: fileURLToPath(new URL("../.env.test", import.meta.url)),
   override: true,
   quiet: true
 });
 
 if (process.env.DB_NAME !== "campus_lost_found_test") {
-  throw new Error(
-    "测试必须连接 campus_lost_found_test，已停止执行"
-  );
+  throw new Error("测试必须连接 campus_lost_found_test，已停止执行");
 }
 
 const schema = await fs.readFile(

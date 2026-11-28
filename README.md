@@ -2,7 +2,9 @@
 
 一个面向校园的失物与招领信息平台。用户可以搜索物品、按类型和分类筛选、查看详情、注册登录、发布信息，管理员可以删除违规内容。
 
-当前进度：**第 6 周自动化测试，核心 API 已覆盖**。
+当前进度：**第 7 周 E2E 与 GitHub Actions CI**。
+
+![CI](https://github.com/chengjiayi0410-prog/campus-lost-found-week2-practice/actions/workflows/ci.yml/badge.svg)
 
 ## 已实现功能
 
@@ -40,14 +42,14 @@
 
 ## 页面
 
-| 地址 | 页面 | 说明 |
-| --- | --- | --- |
-| `/` | 首页 | 搜索、筛选和列表 |
-| `/items/:id` | 详情 | 查看单条信息 |
-| `/login` | 登录 | 调用真实登录接口 |
-| `/register` | 注册 | 调用真实注册接口 |
-| `/publish` | 发布 | 调用真实发布和图片上传接口 |
-| `/admin` | 管理后台 | 管理员软删除信息 |
+| 地址         | 页面     | 说明                       |
+| ------------ | -------- | -------------------------- |
+| `/`          | 首页     | 搜索、筛选和列表           |
+| `/items/:id` | 详情     | 查看单条信息               |
+| `/login`     | 登录     | 调用真实登录接口           |
+| `/register`  | 注册     | 调用真实注册接口           |
+| `/publish`   | 发布     | 调用真实发布和图片上传接口 |
+| `/admin`     | 管理后台 | 管理员软删除信息           |
 
 ## 演示账号
 
@@ -64,6 +66,7 @@
 用户名：admin
 密码：AdminPass123!
 ```
+
 ## 后端开发
 
 ```bash
@@ -102,3 +105,23 @@ npm run test:coverage
 - 图片上传、类型限制和数量限制
 
 测试说明：[docs/testing.md](docs/testing.md)
+
+## 端到端测试
+
+Playwright 会使用独立测试端口和测试数据库，自动启动前后端，并执行：
+
+- 登录状态持久化
+- 用户发布信息
+- 管理员删除信息
+
+```bash
+npm run test:e2e
+```
+
+可视化调试：
+
+```bash
+npm run test:e2e:ui
+```
+
+CI 配置位于 `.github/workflows/ci.yml`。

@@ -1,29 +1,24 @@
 import express from "express";
 import cors from "cors";
-import {
-  testDatabaseConnection
-} from "./config/db.js";
+import { testDatabaseConnection } from "./config/db.js";
 import authRouter from "./routes/auth.js";
 import postsRouter from "./routes/posts.js";
-import {
-  uploadDirectory,
-  uploadUrlPrefix
-} from "./config/uploads.js";
+import { uploadDirectory, uploadUrlPrefix } from "./config/uploads.js";
 export function createApp() {
   const app = express();
+  const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim());
 
   app.use(
     cors({
-      origin: "http://localhost:5173"
+      origin: allowedOrigins
     })
   );
 
   app.use(express.json({ limit: "1mb" }));
 
-  app.use(
-  uploadUrlPrefix,
-  express.static(uploadDirectory)
-);
+  app.use(uploadUrlPrefix, express.static(uploadDirectory));
 
   app.get("/api/health", (request, response) => {
     response.json({
@@ -42,10 +37,7 @@ export function createApp() {
         database
       });
     } catch (error) {
-      console.error(
-        "Database health check failed:",
-        error.message
-      );
+      console.error("Database health check failed:", error.message);
 
       response.status(503).json({
         status: "error",
@@ -62,19 +54,19 @@ export function createApp() {
     });
   });
 
-  app.use((error, request, response, next) => {
-  if (error.type === "entity.parse.failed") {
-    return response.status(400).json({
-      message: "请求 JSON 格式错误"
+  app.use((error, request, response, _next) => {
+    if (error.type === "entity.parse.failed") {
+      return response.status(400).json({
+        message: "请求 JSON 格式错误"
+      });
+    }
+
+    console.error("Unhandled API error:", error);
+
+    return response.status(500).json({
+      message: "服务器内部错误"
     });
-  }
-
-  console.error("Unhandled API error:", error);
-
-  return response.status(500).json({
-    message: "服务器内部错误"
   });
-});
 
   return app;
 }
