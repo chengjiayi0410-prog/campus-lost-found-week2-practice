@@ -4,7 +4,11 @@ import {
   testDatabaseConnection
 } from "./config/db.js";
 import authRouter from "./routes/auth.js";
-
+import postsRouter from "./routes/posts.js";
+import {
+  uploadDirectory,
+  uploadUrlPrefix
+} from "./config/uploads.js";
 export function createApp() {
   const app = express();
 
@@ -15,6 +19,11 @@ export function createApp() {
   );
 
   app.use(express.json({ limit: "1mb" }));
+
+  app.use(
+  uploadUrlPrefix,
+  express.static(uploadDirectory)
+);
 
   app.get("/api/health", (request, response) => {
     response.json({
@@ -46,7 +55,7 @@ export function createApp() {
   });
 
   app.use("/api/auth", authRouter);
-
+  app.use("/api/posts", postsRouter);
   app.use((request, response) => {
     response.status(404).json({
       message: "接口不存在"

@@ -1,7 +1,7 @@
-# 数据库设计草稿
+# 数据库设计
 
-> 当前阶段：第 3 周，用户表与认证接口已经落地。
-> 本文件只设计数据结构，数据库连接和真实 SQL 操作将在第 3～4 周实现。
+> 当前阶段：第 4 周，业务表与信息 CRUD API 已经落地。
+> 本文件记录当前数据库设计、实际建表脚本和后续扩展方向。
 
 ## 实体关系
 
@@ -128,12 +128,16 @@ erDiagram
 ```sql
 CREATE TABLE users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
+  username VARCHAR(30) NOT NULL UNIQUE,
+  password_hash VARCHAR(100) NOT NULL,
   nickname VARCHAR(50) NOT NULL,
   role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_0900_ai_ci;
 
 CREATE TABLE categories (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
